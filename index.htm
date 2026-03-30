@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <title>CVE 105 Practice CBT - ARCHIWEB</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+/* --- General Styling --- */
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #1d2b64, #f8cdda, #00c9ff);
     background-size: 300% 300%;
     animation: gradientMove 10s ease infinite;
     padding: 20px;
+    margin: 0;
 }
 
 @keyframes gradientMove {
@@ -21,6 +23,7 @@ body {
 
 .container {
     max-width: 850px;
+    width: 95%;  /* Responsive for mobile */
     margin: auto;
     background: white;
     padding: 25px;
@@ -28,6 +31,7 @@ body {
     box-shadow: 0 0 25px rgba(0,0,0,0.3);
 }
 
+/* --- Header & Branding --- */
 .header {
     text-align: center;
 }
@@ -44,6 +48,7 @@ body {
     font-weight: bold;
 }
 
+/* --- Questions & Options --- */
 .question {
     font-size: 20px;
     margin: 20px 0;
@@ -51,32 +56,36 @@ body {
 
 .options label {
     display: block;
-    padding: 12px;
+    padding: 14px;      /* Bigger for mobile */
     margin: 8px 0;
     background: #f1f1f1;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.3s;
+    font-size: 18px;    /* Bigger for mobile */
 }
 
 .options label:hover {
     background: #d0e6ff;
 }
 
+/* --- Buttons --- */
 button {
-    padding: 10px 15px;
+    padding: 12px 20px;  /* Bigger for mobile */
     margin: 5px;
     border: none;
     background: #007BFF;
     color: white;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
 }
 
 button:hover {
     background: #0056b3;
 }
 
+/* --- Start Box & Feedback --- */
 .start-box {
     text-align: center;
 }
@@ -86,14 +95,29 @@ button:hover {
     margin-top: 10px;
 }
 
+/* --- Footer --- */
 .footer {
     text-align: center;
     margin-top: 20px;
     color: gray;
 }
+
+/* --- Responsive Fix for small screens --- */
+@media (max-width: 600px) {
+    .question {
+        font-size: 18px;
+    }
+    .options label {
+        font-size: 16px;
+        padding: 12px;
+    }
+    button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -138,11 +162,8 @@ button:hover {
 
 </div>
 
-</div>
-
 <script>
-
-// QUESTIONS
+// --- QUESTIONS ---
 const questions = [
 {
 question: "When was Principia Mathematica published?",
@@ -166,28 +187,23 @@ let userAnswers = new Array(questions.length).fill(null);
 let timeLeft;
 let timerInterval;
 
-// START EXAM
+// --- START EXAM ---
 function startExam() {
     timeLeft = parseInt(document.getElementById("timeSelect").value);
-
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("quizScreen").style.display = "block";
-
     startTimer();
     loadQuestion();
 }
 
-// TIMER
+// --- TIMER ---
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
-
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
-
         document.getElementById("timer").innerText =
             `⏱ ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             submitQuiz();
@@ -196,13 +212,11 @@ function startTimer() {
     }, 1000);
 }
 
-// LOAD QUESTION
+// --- LOAD QUESTION ---
 function loadQuestion() {
     let q = questions[currentQuestion];
-
     let html = `<div class="question">${currentQuestion + 1}. ${q.question}</div>`;
     html += `<div class="options">`;
-
     q.options.forEach((opt, index) => {
         html += `
         <label id="opt${index}">
@@ -210,47 +224,44 @@ function loadQuestion() {
             ${opt}
         </label>`;
     });
-
     html += `</div><p id="feedback"></p>`;
     document.getElementById("quiz").innerHTML = html;
+
+    // Pre-select previous answer if exists
+    if(userAnswers[currentQuestion] !== null){
+        document.querySelector(`input[value='${userAnswers[currentQuestion]}']`).checked = true;
+    }
 }
 
-// INSTANT FEEDBACK
+// --- INSTANT FEEDBACK ---
 document.addEventListener("change", function(e) {
     if (e.target.name === "option") {
-
         let selected = parseInt(e.target.value);
         let correct = questions[currentQuestion].answer;
-
         let labels = document.querySelectorAll(".options label");
-
         labels.forEach((label, index) => {
             let input = label.querySelector("input");
             input.disabled = true;
-
             if (index === correct) {
                 label.style.background = "#28a745";
                 label.style.color = "white";
             }
-
             if (index === selected && selected !== correct) {
                 label.style.background = "#dc3545";
                 label.style.color = "white";
             }
         });
-
         if (selected === correct) {
             document.getElementById("feedback").innerHTML = "✅ Correct!";
         } else {
             document.getElementById("feedback").innerHTML =
                 `❌ Wrong! Correct answer: ${questions[currentQuestion].options[correct]}`;
         }
-
         userAnswers[currentQuestion] = selected;
     }
 });
 
-// NAVIGATION
+// --- NAVIGATION ---
 function nextQuestion() {
     if (currentQuestion < questions.length - 1) {
         currentQuestion++;
@@ -265,19 +276,16 @@ function prevQuestion() {
     }
 }
 
-// SUBMIT
+// --- SUBMIT ---
 function submitQuiz() {
     clearInterval(timerInterval);
-
     let score = 0;
     questions.forEach((q, index) => {
         if (userAnswers[index] === q.answer) score++;
     });
-
     document.getElementById("result").innerText =
         `🎯 Final Score: ${score} / ${questions.length}`;
 }
-
 </script>
 
 </body>

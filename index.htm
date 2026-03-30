@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CVE 105 Practice CBT - ARCHIWEB</title>
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -20,7 +21,6 @@ body {
 }
 .container {
     max-width: 850px;
-    width: 95%;
     margin: auto;
     background: white;
     padding: 25px;
@@ -38,11 +38,8 @@ body {
     background: #f1f1f1;
     border-radius: 8px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 18px;
 }
 .options label:hover { background: #d0e6ff; }
-.options input { margin-right: 10px; }
 .correct { background-color: #c8e6c9 !important; }
 .wrong { background-color: #ffcdd2 !important; }
 button {
@@ -53,27 +50,22 @@ button {
     color: white;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
 }
 button:hover { background: #0056b3; }
 .start-box { text-align: center; }
-#feedback { font-weight: bold; margin-top: 10px; font-size: 18px; }
 .footer { text-align: center; margin-top: 20px; color: gray; }
-@media (max-width: 600px) {
-    .question { font-size: 18px; }
-    .options label { font-size: 16px; padding: 12px; }
-    button { font-size: 14px; padding: 10px 15px; }
-}
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
+<!-- START SCREEN -->
 <div id="startScreen" class="start-box">
     <h2>🎓 CVE 105 Practice Questions</h2>
     <p><strong>Brought to you by ARCHIWEB</strong></p>
-    <p>Select Exam Duration</p>
+
     <select id="timeSelect">
         <option value="1800">30 Minutes</option>
         <option value="2700">45 Minutes</option>
@@ -83,137 +75,164 @@ button:hover { background: #0056b3; }
     <button onclick="startExam()">Start Exam</button>
 </div>
 
+<!-- QUIZ SCREEN -->
 <div id="quizScreen" style="display:none;">
     <div class="header">
         <h2>CVE 105 Practice Questions</h2>
         <span class="brand">Brought to you by ARCHIWEB</span>
     </div>
+
     <div class="timer" id="timer"></div>
     <div id="quiz"></div>
     <div id="feedback"></div>
+
     <button onclick="prevQuestion()">Previous</button>
     <button onclick="nextQuestion()">Next</button>
     <button onclick="submitQuiz()">Submit</button>
+
     <h3 id="result"></h3>
     <div class="footer">© 2026 ARCHIWEB CBT System</div>
 </div>
 
-<script>
-// --- QUESTIONS ARRAY ---
-const questions = [
-    {question:"When was Principia Mathematica published?", options:["1687","1666","1675","1704"], answer:0},
-    {question:"The love of wisdom can be described as the desire to find out what is", options:["Real and True","Good and Evil","Right and Wrong","Important and Useful"], answer:0},
-    {question:"Philosophy is a kind of", options:["Calling / Vocation","Science","Religion","Art"], answer:0},
-    {question:"The definition of the term philosophy remains a subject of", options:["Controversy","Debate","Discussion","Agreement"], answer:0},
-    {question:"The investigation of ultimate reality is", options:["Metaphysics","Epistemology","Ethics","Aesthetics"], answer:0},
-    {question:"Synthetic Philosophy is the arrangement of concept into a unified system", options:["Synthetic Philosophy","Analytic Philosophy","Science","Technology"], answer:0},
-{question:"Analytic Philosophy is the logical study of concept", options:["Analytic Philosophy","Synthetic Philosophy","Philosophy","Metaphysics"], answer:0},
-{question:"The philosophy of science is concerned with the nature of", options:["Scientific fact","Observation","Experiment","Theory"], answer:0},
-{question:"The philosophers concern is with the", options:["Significance","Accuracy","Detail","Observation"], answer:0},
-{question:"The interpretation of observation leads to", options:["Knowledge","Wisdom","Opinion","Fact"], answer:0},
-{question:"The volume of all gases is halved by doubling the", options:["Pressure","Temperature","Density","Mass"], answer:0},
-{question:"Newton laws of motion have been debated since the publication of", options:["Principia Mathematica","Ethics","Metaphysics","Elements"], answer:0},
-{question:"Newton first law is also known as", options:["Law of inertia","Law of motion","Law of gravity","Law of acceleration"], answer:0},
-{question:"Name 5 important philosophers before 20th century", options:["Aristotle, Descartes, Locke, Hume, Kant","Plato, Socrates, Galileo, Newton, Einstein","Kant, Hume, Marx, Locke, Descartes","Confucius, Aristotle, Newton, Darwin, Galileo"], answer:0},
-{question:"In science, the composition of the universe is divided into", options:["Matter and Energy","Matter and Mass","Energy and Force","Matter and Space"], answer:0},
-{question:"Matter includes the material in the", options:["Universe","Earth","Galaxy","Solar System"], answer:0},
-{question:"Energy can be measured only while being", options:["Transformed","Created","Destroyed","Stored"], answer:0},
-{question:"The earliest writing materials were", options:["Papyrus","Clay","Stone","Palm Leaf"], answer:0},
-{question:"Papyrus was used in ancient", options:["Egypt","Mesopotamia","India","China"], answer:0},
-{question:"The earliest form of writing is", options:["Cuneiform","Hieroglyphics","Alphabet","Pictographs"], answer:0},
-{question:"Cuneiform writing was developed by the", options:["Sumerians","Egyptians","Chinese","Phoenicians"], answer:0},
-{question:"The earliest known alphabet was developed by the", options:["Phoenicians","Sumerians","Greeks","Romans"], answer:0},
-{question:"The invention of paper is credited to", options:["Chinese","Egyptians","Romans","Indians"], answer:0},
-{question:"The printing press was invented by", options:["Johannes Gutenberg","Isaac Newton","Thomas Edison","Leonardo da Vinci"], answer:0},
-{question:"The first printed book is", options:["Gutenberg Bible","Bible of Paris","Codex","Quran"], answer:0},
-{question:"The Renaissance began in", options:["Italy","France","England","Spain"], answer:0},
-{question:"The Renaissance period was between", options:["14th and 17th century","12th and 15th century","15th and 18th century","10th and 13th century"], answer:0},
-{question:"The scientific revolution began in", options:["Europe","Asia","America","Africa"], answer:0},
-{question:"The telescope was improved by", options:["Galileo","Newton","Kepler","Copernicus"], answer:0},
-{question:"The heliocentric theory was proposed by", options:["Copernicus","Galileo","Newton","Kepler"], answer:0},
-{question:"The law of planetary motion was proposed by", options:["Kepler","Newton","Galileo","Copernicus"], answer:0},
-{question:"The law of gravity was proposed by", options:["Newton","Kepler","Galileo","Einstein"], answer:0},
-{question:"The microscope was developed by", options:["Leeuwenhoek","Newton","Galileo","Hooke"], answer:0},
-{question:"The industrial revolution began in", options:["Britain","France","Germany","USA"], answer:0},
-{question:"The steam engine was improved by", options:["James Watt","Thomas Edison","Nikola Tesla","George Stephenson"], answer:0},
-{question:"Electricity was discovered by", options:["Benjamin Franklin","Thomas Edison","Galvani","Volta"], answer:0},
-{question:"The telephone was invented by", options:["Alexander Graham Bell","Tesla","Marconi","Edison"], answer:0},
-{question:"The light bulb was invented by", options:["Thomas Edison","Tesla","Bell","Volta"], answer:0},
-{question:"The theory of evolution was proposed by", options:["Charles Darwin","Newton","Einstein","Huxley"], answer:0},
-{question:"The theory of relativity was proposed by", options:["Albert Einstein","Newton","Galileo","Max Planck"], answer:0},
-{question:"The first airplane was invented by", options:["Wright brothers","Bleriot","Lindbergh","Curtiss"], answer:0},
-{question:"The first computer was developed by", options:["Charles Babbage","Alan Turing","Von Neumann","Herman Hollerith"], answer:0},
-{question:"The internet was developed in", options:["20th century","19th century","21st century","18th century"], answer:0},
-{question:"The first man on the moon was", options:["Neil Armstrong","Buzz Aldrin","Yuri Gagarin","John Glenn"], answer:0},
-{question:"The space race was between", options:["USA and USSR","USA and China","USSR and China","USA and Europe"], answer:0},
-{question:"The first artificial satellite was", options:["Sputnik","Explorer 1","Telstar","Voyager"], answer:0},
-{question:"The first woman in space was", options:["Valentina Tereshkova","Sally Ride","Mae Jemison","Kalpana Chawla"], answer:0},
-{question:"The DNA structure was discovered by", options:["Watson and Crick","Darwin and Wallace","Mendel and Morgan","Pauling and Franklin"], answer:0},
-{question:"The first cloning was done in", options:["1996","1986","2000","1990"], answer:0},
-{question:"The human genome project was completed in", options:["2003","2000","1999","2010"], answer:0},
-{question:"The modern age is characterized by", options:["Technology","Science","Art","Religion"], answer:0},
-{question:"Science and technology are", options:["Interrelated","Separate","Opposing","Random"], answer:0},
-{question:"The advancement of science leads to", options:["Development","Decline","Conflict","Controversy"], answer:0},
-{question:"Technology improves", options:["Human life","Nature","Universe","Space"], answer:0},
-{question:"Scientific discoveries are based on", options:["Experiment","Faith","Imagination","Observation"], answer:0},
-{question:"Technology is based on", options:["Application","Theory","Law","Principle"], answer:0},
-{question:"Science explains", options:["Nature","Culture","Society","History"], answer:0},
-{question:"Technology changes", options:["Society","Science","Earth","Environment"], answer:0},
-{question:"The earth rotates on its", options:["Axis","Equator","Poles","Latitude"], answer:0},
-{question:"The earth revolves around the", options:["Sun","Moon","Mars","Venus"], answer:0},
-{question:"One rotation takes", options:["24 hours","12 hours","48 hours","365 days"], answer:0},
-{question:"One revolution takes", options:["365 days","24 hours","30 days","1 year"], answer:0},
-{question:"The shape of the earth is", options:["Spherical","Flat","Oblate","Cube"], answer:0},
-{question:"The earth has", options:["Three layers","Two layers","Four layers","One layer"], answer:0},
-{question:"The inner layer is", options:["Core","Mantle","Crust","Atmosphere"], answer:0},
-{question:"The middle layer is", options:["Mantle","Core","Crust","Lithosphere"], answer:0},
-{question:"The outer layer is", options:["Crust","Core","Mantle","Biosphere"], answer:0},
-{question:"The atmosphere contains", options:["Gases","Water","Rocks","Dust"], answer:0},
-{question:"The most abundant gas is", options:["Nitrogen","Oxygen","Hydrogen","Carbon Dioxide"], answer:0},
-{question:"The second most abundant gas is", options:["Oxygen","Nitrogen","Hydrogen","Carbon Dioxide"], answer:0},
-{question:"Water covers", options:["71%","50%","80%","60%"], answer:0},
-{question:"The largest ocean is", options:["Pacific","Atlantic","Indian","Arctic"], answer:0},
-{question:"The smallest ocean is", options:["Arctic","Indian","Atlantic","Pacific"], answer:0},
-{question:"The longest river is", options:["Nile","Amazon","Yangtze","Mississippi"], answer:0},
-{question:"The largest desert is", options:["Sahara","Gobi","Kalahari","Arabian"], answer:0},
-{question:"The highest mountain is", options:["Everest","K2","Kangchenjunga","Lhotse"], answer:0},
-{question:"The study of earth is called", options:["Geography","Geology","Meteorology","Astronomy"], answer:0},
-{question:"The study of weather is called", options:["Meteorology","Geography","Geology","Oceanography"], answer:0},
-{question:"The study of rocks is called", options:["Geology","Geography","Oceanography","Astronomy"], answer:0},
-{question:"The study of ocean is called", options:["Oceanography","Geology","Meteorology","Astronomy"], answer:0},
-{question:"The study of space is called", options:["Astronomy","Geography","Geology","Meteorology"], answer:0},
-{question:"The sun is a", options:["Star","Planet","Moon","Satellite"], answer:0},
-{question:"The moon is a", options:["Satellite","Planet","Star","Asteroid"], answer:0},
-{question:"The solar system consists of", options:["Planets","Stars","Moons","Comets"], answer:0},
-{question:"The largest planet is", options:["Jupiter","Saturn","Earth","Mars"], answer:0},
-{question:"The smallest planet is", options:["Mercury","Mars","Venus","Earth"], answer:0},
-{question:"The hottest planet is", options:["Venus","Mercury","Mars","Jupiter"], answer:0},
-{question:"The red planet is", options:["Mars","Venus","Mercury","Earth"], answer:0},
-{question:"The ringed planet is", options:["Saturn","Jupiter","Uranus","Neptune"], answer:0},
-{question:"The coldest planet is", options:["Neptune","Uranus","Saturn","Mercury"], answer:0},
-{question:"The nearest star is", options:["Sun","Alpha Centauri","Proxima Centauri","Sirius"], answer:0},
-{question:"Light travels at", options:["3×10⁸ m/s","1×10⁸ m/s","3×10⁶ m/s","1×10⁶ m/s"], answer:0},
-{question:"Gravity pulls objects", options:["Downward","Upward","Sideways","Inward"], answer:0},
-{question:"The force of gravity depends on", options:["Mass","Volume","Density","Speed"], answer:0},
-{question:"The earth magnetic field protects us from", options:["Radiation","Wind","Water","Gravity"], answer:0},
-{question:"The ozone layer protects from", options:["UV rays","X-rays","Infrared","Radio waves"], answer:0},
-{question:"Pollution affects", options:["Environment","Society","Economy","Health"], answer:0},
-{question:"Climate change is caused by", options:["Greenhouse gases","Gravity","Sunspots","Moon phases"], answer:0}
-];
-    // Add more questions as needed...
+</div>
 
+<script>
+
+// --- QUESTIONS ---
+const questions = [
+    {question:"The investigation of ultimate reality is", options:["Metaphysics","Epistemology","Ethics","Aesthetics"], answer:0},
+{question:"What is the arrangement of concept into a unified system", options:["Synthetic Philosophy","Analytic Philosophy","Science","Technology"], answer:0},
+{question:"The investigation of ultimate reality is", options:["Metaphysics","Epistemology","Ethics","Aesthetics"], answer:0},
+{question:"What is the arrangement of concept into a unified system", options:["Synthetic Philosophy","Analytic Philosophy","Science","Technology"], answer:0},
+{question:"Philosophy is a kind of", options:["Calling / Vocation","Science","Religion","Art"], answer:0},
+{question:"The investigation of ultimate reality is", options:["Metaphysics","Epistemology","Ethics","Aesthetics"], answer:0},
+{question:"What is the arrangement of concept into a unified system", options:["Synthetic Philosophy","Analytic Philosophy","Science","Technology"], answer:0},
+    {question:" What is the logical study of concept", options:["Analytic Philosophy","Synthetic Philosophy","Philosophy","Metaphysics"], answer:0},
+    {question:"The philosophy of science is concerned with the nature of", options:["Scientific fact","Observation","Experiment","Theory"], answer:0},
+    {question:"The philosophers concern is with the", options:["Significance","Accuracy","Detail","Observation"], answer:0},
+    {question:"The interpretation of observation leads to", options:["Knowledge","Wisdom","Opinion","Fact"], answer:0},
+    {question:"The volume of all gases is halved by doubling the", options:["Pressure","Temperature","Density","Mass"], answer:0},
+    {question:"Newton laws of motion have been debated since the publication of", options:["Principia Mathematica","Ethics","Metaphysics","Elements"], answer:0},
+    {question:"Newton first law is also known as", options:["Law of inertia","Law of motion","Law of gravity","Law of acceleration"], answer:0},
+    {question:"Name 5 important philosophers before 20th century", options:["Aristotle, Descartes, Locke, Hume, Kant","Plato, Socrates, Galileo, Newton, Einstein","Kant, Hume, Marx, Locke, Descartes","Confucius, Aristotle, Newton, Darwin, Galileo"], answer:0},
+    {question:"In science, the composition of the universe is divided into", options:["Matter and Energy","Matter and Mass","Energy and Force","Matter and Space"], answer:0},
+    {question:"Matter includes the material in the", options:["Universe","Earth","Galaxy","Solar System"], answer:0},
+    {question:"Energy can be measured only while being", options:["Transformed","Created","Destroyed","Stored"], answer:0},
+    {question:"The earliest writing materials were", options:["Papyrus","Clay","Stone","Palm Leaf"], answer:0},
+    {question:"Papyrus was used in ancient", options:["Egypt","Mesopotamia","India","China"], answer:0},
+    {question:"The earliest form of writing is", options:["Cuneiform","Hieroglyphics","Alphabet","Pictographs"], answer:0},
+    {question:"Cuneiform writing was developed by the", options:["Sumerians","Egyptians","Chinese","Phoenicians"], answer:0},
+    {question:"The earliest known alphabet was developed by the", options:["Phoenicians","Sumerians","Greeks","Romans"], answer:0},
+    {question:"The invention of paper is credited to", options:["Chinese","Egyptians","Romans","Indians"], answer:0},
+    {question:"The printing press was invented by", options:["Johannes Gutenberg","Isaac Newton","Thomas Edison","Leonardo da Vinci"], answer:0},
+    {question:"The first printed book is", options:["Gutenberg Bible","Bible of Paris","Codex","Quran"], answer:0},
+    {question:"The Renaissance began in", options:["Italy","France","England","Spain"], answer:0},
+    {question:"The Renaissance period was between", options:["14th and 17th century","12th and 15th century","15th and 18th century","10th and 13th century"], answer:0},
+    {question:"The scientific revolution began in", options:["Europe","Asia","America","Africa"], answer:0},
+    {question:"The telescope was improved by", options:["Galileo","Newton","Kepler","Copernicus"], answer:0},
+    {question:"The heliocentric theory was proposed by", options:["Copernicus","Galileo","Newton","Kepler"], answer:0},
+    {question:"The law of planetary motion was proposed by", options:["Kepler","Newton","Galileo","Copernicus"], answer:0},
+    {question:"The law of gravity was proposed by", options:["Newton","Kepler","Galileo","Einstein"], answer:0},
+    {question:"The microscope was developed by", options:["Leeuwenhoek","Newton","Galileo","Hooke"], answer:0},
+    {question:"The industrial revolution began in", options:["Britain","France","Germany","USA"], answer:0},
+    {question:"The steam engine was improved by", options:["James Watt","Thomas Edison","Nikola Tesla","George Stephenson"], answer:0},
+    {question:"Electricity was discovered by", options:["Benjamin Franklin","Thomas Edison","Galvani","Volta"], answer:0},
+    {question:"The telephone was invented by", options:["Alexander Graham Bell","Tesla","Marconi","Edison"], answer:0},
+    {question:"The light bulb was invented by", options:["Thomas Edison","Tesla","Bell","Volta"], answer:0},
+    {question:"The theory of evolution was proposed by", options:["Charles Darwin","Newton","Einstein","Huxley"], answer:0},
+    {question:"The theory of relativity was proposed by", options:["Albert Einstein","Newton","Galileo","Max Planck"], answer:0},
+    {question:"The first airplane was invented by", options:["Wright brothers","Bleriot","Lindbergh","Curtiss"], answer:0},
+    {question:"The first computer was developed by", options:["Charles Babbage","Alan Turing","Von Neumann","Herman Hollerith"], answer:0},
+    {question:"The internet was developed in", options:["20th century","19th century","21st century","18th century"], answer:0},
+    {question:"The first man on the moon was", options:["Neil Armstrong","Buzz Aldrin","Yuri Gagarin","John Glenn"], answer:0},
+    {question:"The space race was between", options:["USA and USSR","USA and China","USSR and China","USA and Europe"], answer:0},
+    {question:"The first artificial satellite was", options:["Sputnik","Explorer 1","Telstar","Voyager"], answer:0},
+    {question:"The first woman in space was", options:["Valentina Tereshkova","Sally Ride","Mae Jemison","Kalpana Chawla"], answer:0},
+    {question:"The DNA structure was discovered by", options:["Watson and Crick","Darwin and Wallace","Mendel and Morgan","Pauling and Franklin"], answer:0},
+    {question:"The first cloning was done in", options:["1996","1986","2000","1990"], answer:0},
+    {question:"The human genome project was completed in", options:["2003","2000","1999","2010"], answer:0},
+    {question:"The modern age is characterized by", options:["Technology","Science","Art","Religion"], answer:0},
+    {question:"Science and technology are", options:["Interrelated","Separate","Opposing","Random"], answer:0},
+    {question:"The advancement of science leads to", options:["Development","Decline","Conflict","Controversy"], answer:0},
+    {question:"Technology improves", options:["Human life","Nature","Universe","Space"], answer:0},
+    {question:"Scientific discoveries are based on", options:["Experiment","Faith","Imagination","Observation"], answer:0},
+    {question:"Technology is based on", options:["Application","Theory","Law","Principle"], answer:0},
+    {question:"Science explains", options:["Nature","Culture","Society","History"], answer:0},
+    {question:"Technology changes", options:["Society","Science","Earth","Environment"], answer:0},
+    {question:"The earth rotates on its", options:["Axis","Equator","Poles","Latitude"], answer:0},
+    {question:"The earth revolves around the", options:["Sun","Moon","Mars","Venus"], answer:0},
+    {question:"One rotation takes", options:["24 hours","12 hours","48 hours","365 days"], answer:0},
+    {question:"One revolution takes", options:["365 days","24 hours","30 days","1 year"], answer:0},
+    {question:"The shape of the earth is", options:["Spherical","Flat","Oblate","Cube"], answer:0},
+    {question:"The earth has", options:["Three layers","Two layers","Four layers","One layer"], answer:0},
+    {question:"The inner layer is", options:["Core","Mantle","Crust","Atmosphere"], answer:0},
+    {question:"The middle layer is", options:["Mantle","Core","Crust","Lithosphere"], answer:0},
+    {question:"The outer layer is", options:["Crust","Core","Mantle","Biosphere"], answer:0},
+    {question:"The atmosphere contains", options:["Gases","Water","Rocks","Dust"], answer:0},
+    {question:"The most abundant gas is", options:["Nitrogen","Oxygen","Hydrogen","Carbon Dioxide"], answer:0},
+    {question:"The second most abundant gas is", options:["Oxygen","Nitrogen","Hydrogen","Carbon Dioxide"], answer:0},
+    {question:"Water covers", options:["71%","50%","80%","60%"], answer:0},
+    {question:"The largest ocean is", options:["Pacific","Atlantic","Indian","Arctic"], answer:0},
+    {question:"The smallest ocean is", options:["Arctic","Indian","Atlantic","Pacific"], answer:0},
+    {question:"The longest river is", options:["Nile","Amazon","Yangtze","Mississippi"], answer:0},
+    {question:"The largest desert is", options:["Sahara","Gobi","Kalahari","Arabian"], answer:0},
+    {question:"The highest mountain is", options:["Everest","K2","Kangchenjunga","Lhotse"], answer:0},
+    {question:"The study of earth is called", options:["Geography","Geology","Meteorology","Astronomy"], answer:0},
+    {question:"The study of weather is called", options:["Meteorology","Geography","Geology","Oceanography"], answer:0},
+    {question:"The study of rocks is called", options:["Geology","Geography","Oceanography","Astronomy"], answer:0},
+    {question:"The study of ocean is called", options:["Oceanography","Geology","Meteorology","Astronomy"], answer:0},
+    {question:"The study of space is called", options:["Astronomy","Geography","Geology","Meteorology"], answer:0},
+    {question:"The sun is a", options:["Star","Planet","Moon","Satellite"], answer:0},
+    {question:"The moon is a", options:["Satellite","Planet","Star","Asteroid"], answer:0},
+    {question:"The solar system consists of", options:["Planets","Stars","Moons","Comets"], answer:0},
+    {question:"The largest planet is", options:["Jupiter","Saturn","Earth","Mars"], answer:0},
+    {question:"The smallest planet is", options:["Mercury","Mars","Venus","Earth"], answer:0},
+    {question:"The hottest planet is", options:["Venus","Mercury","Mars","Jupiter"], answer:0},
+    {question:"The red planet is", options:["Mars","Venus","Mercury","Earth"], answer:0},
+    {question:"The ringed planet is", options:["Saturn","Jupiter","Uranus","Neptune"], answer:0},
+    {question:"The coldest planet is", options:["Neptune","Uranus","Saturn","Mercury"], answer:0},
+    {question:"The nearest star is", options:["Sun","Alpha Centauri","Proxima Centauri","Sirius"], answer:0},
+    {question:"Light travels at", options:["3×10⁸ m/s","1×10⁸ m/s","3×10⁶ m/s","1×10⁶ m/s"], answer:0},
+    {question:"Gravity pulls objects", options:["Downward","Upward","Sideways","Inward"], answer:0},
+    {question:"The force of gravity depends on", options:["Mass","Volume","Density","Speed"], answer:0},
+    {question:"The earth magnetic field protects us from", options:["Radiation","Wind","Water","Gravity"], answer:0},
+    {question:"The ozone layer protects from", options:["UV rays","X-rays","Infrared","Radio waves"], answer:0},
+    {question:"Pollution affects", options:["Environment","Society","Economy","Health"], answer:0},
+    {question:"Climate change is caused by", options:["Greenhouse gases","Gravity","Sunspots","Moon phases"], answer:0}
+];
 
 // --- VARIABLES ---
 let currentQuestion = 0;
 let userAnswers = new Array(questions.length).fill(null);
+let shuffledQuestions = [];
 let timeLeft;
 let timerInterval;
 
-// --- START EXAM ---
+// --- SHUFFLE QUESTIONS ---
+function prepareQuestions() {
+    shuffledQuestions = questions.map(q => {
+        let options = q.options.map((opt, i) => ({
+            text: opt,
+            isCorrect: i === q.answer
+        }));
+
+        for (let i = options.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+
+        return { question: q.question, options: options };
+    });
+}
+
+// --- START ---
 function startExam() {
+    prepareQuestions();
     timeLeft = parseInt(document.getElementById("timeSelect").value);
+
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("quizScreen").style.display = "block";
+
     startTimer();
     loadQuestion();
 }
@@ -222,10 +241,13 @@ function startExam() {
 function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
+
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+
         document.getElementById("timer").innerText =
-            `⏱ ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+            `⏱ ${m}:${s < 10 ? "0" : ""}${s}`;
+
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             submitQuiz();
@@ -236,59 +258,92 @@ function startTimer() {
 
 // --- LOAD QUESTION ---
 function loadQuestion() {
-    const q = questions[currentQuestion];
+    const q = shuffledQuestions[currentQuestion];
+
     let html = `<div class="question">${currentQuestion + 1}. ${q.question}</div><div class="options">`;
+
     q.options.forEach((opt, idx) => {
         const checked = userAnswers[currentQuestion] === idx ? "checked" : "";
-        html += `<label id="label${idx}"><input type="radio" name="option" value="${idx}" ${checked} onclick="checkAnswer(${idx})"> ${opt}</label>`;
+        html += `
+        <label id="label${idx}">
+            <input type="radio" ${checked} onclick="checkAnswer(${idx})">
+            ${opt.text}
+        </label>`;
     });
-    html += `</div>`;
+
+    html += "</div>";
+
     document.getElementById("quiz").innerHTML = html;
     document.getElementById("feedback").innerText = "";
+
+    if (userAnswers[currentQuestion] !== null) {
+        showFeedback(userAnswers[currentQuestion]);
+    }
 }
 
-// --- CHECK ANSWER IMMEDIATELY ---
-function checkAnswer(selectedIdx) {
-    const q = questions[currentQuestion];
-    userAnswers[currentQuestion] = selectedIdx;
-    for (let i = 0; i < q.options.length; i++) {
-        const label = document.getElementById(`label${i}`);
-        label.classList.remove("correct","wrong");
-        if(i === selectedIdx) {
-            if(i === q.answer) {
-                label.classList.add("correct");
-                document.getElementById("feedback").innerText = "✅ Correct!";
-            } else {
-                label.classList.add("wrong");
-                document.getElementById("feedback").innerText = `❌ Wrong! Correct answer: ${q.options[q.answer]}`;
-            }
-        }
+// --- CHECK ---
+function checkAnswer(idx) {
+    userAnswers[currentQuestion] = idx;
+    showFeedback(idx);
+}
+
+// --- FEEDBACK ---
+function showFeedback(idx) {
+    const q = shuffledQuestions[currentQuestion];
+
+    q.options.forEach((opt, i) => {
+        document.getElementById(`label${i}`).classList.remove("correct","wrong");
+    });
+
+    if (q.options[idx].isCorrect) {
+        document.getElementById(`label${idx}`).classList.add("correct");
+        document.getElementById("feedback").innerText = "✅ Correct!";
+    } else {
+        document.getElementById(`label${idx}`).classList.add("wrong");
+
+        let correctIndex = q.options.findIndex(o => o.isCorrect);
+        document.getElementById(`label${correctIndex}`).classList.add("correct");
+
+        document.getElementById("feedback").innerText =
+            `❌ Wrong! Correct answer: ${q.options[correctIndex].text}`;
     }
 }
 
 // --- NAVIGATION ---
 function nextQuestion() {
-    if(currentQuestion < questions.length - 1) currentQuestion++;
-    loadQuestion();
-}
-function prevQuestion() {
-    if(currentQuestion > 0) currentQuestion--;
-    loadQuestion();
+    if (currentQuestion < shuffledQuestions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    }
 }
 
-// --- SUBMIT QUIZ ---
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+    }
+}
+
+// --- SUBMIT ---
 function submitQuiz() {
     clearInterval(timerInterval);
+
     let score = 0;
-    userAnswers.forEach((ans, idx) => {
-        if(ans === questions[idx].answer) score++;
+
+    userAnswers.forEach((ans, i) => {
+        if (ans !== null && shuffledQuestions[i].options[ans].isCorrect) {
+            score++;
+        }
     });
+
     document.getElementById("quiz").style.display = "none";
     document.getElementById("feedback").style.display = "none";
-    document.getElementById("result").innerText = `Your score: ${score} / ${questions.length}`;
+
+    document.getElementById("result").innerText =
+        `Your score: ${score} / ${questions.length}`;
 }
+
 </script>
 
-</div>
 </body>
 </html>

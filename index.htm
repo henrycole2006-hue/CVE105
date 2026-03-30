@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CVE 105 Practice CBT - ARCHIWEB</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #1d2b64, #f8cdda, #00c9ff);
+    background-size: 300% 300%;
+    animation: gradientMove 10s ease infinite;
+    padding: 20px;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+.header {
+    text-align: center;
+}
+
+.brand {
+    color: #007BFF;
+    font-weight: bold;
+}
+
+.timer {
+    float: right;
+    font-size: 18px;
+    color: red;
+    font-weight: bold;
+}
+
+.question {
+    font-size: 20px;
+    margin: 20px 0;
+}
+
+.options label {
+    display: block;
+    padding: 12px;
+    margin: 8px 0;
+    background: #f1f1f1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.options label:hover {
+    background: #d0e6ff;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    background: #007BFF;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+.start-box {
+    text-align: center;
+}
+
+#feedback {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    color: gray;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- START SCREEN -->
+<div id="startScreen" class="start-box">
+    <h2>🎓 CVE 105 Practice Questions</h2>
+    <p><strong>Brought to you by ARCHIWEB</strong></p>
+
+    <p>Select Exam Duration</p>
+    <select id="timeSelect">
+        <option value="1800">30 Minutes</option>
+        <option value="2700">45 Minutes</option>
+        <option value="3600">1 Hour</option>
+    </select>
+
+    <br><br>
+    <button onclick="startExam()">Start Exam</button>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" style="display:none;">
+
+    <div class="header">
+        <h2>CVE 105 Practice Questions</h2>
+        <span class="brand">Brought to you by ARCHIWEB</span>
+    </div>
+
+    <div class="timer" id="timer"></div>
+
+    <div id="quiz"></div>
+
+    <button onclick="prevQuestion()">Previous</button>
+    <button onclick="nextQuestion()">Next</button>
+    <button onclick="submitQuiz()">Submit</button>
+
+    <h3 id="result"></h3>
+
+    <div class="footer">
+        © 2026 ARCHIWEB CBT System
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+// QUESTIONS
+const questions = [
+{
+question: "When was Principia Mathematica published?",
+options: ["1666","1675","1687","1704"],
+answer: 2
+},
+{
+question: "The study of morality and good is ____",
+options: ["Aesthetics","Metaphysics","Ethics","Logic"],
+answer: 2
+},
+{
+question: "Scientific method is a ____ way of learning",
+options: ["Random","Systematic","Emotional","Religious"],
+answer: 1
+}
+];
+
+let currentQuestion = 0;
+let userAnswers = new Array(questions.length).fill(null);
+let timeLeft;
+let timerInterval;
+
+// START EXAM
+function startExam() {
+    timeLeft = parseInt(document.getElementById("timeSelect").value);
+
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("quizScreen").style.display = "block";
+
+    startTimer();
+    loadQuestion();
+}
+
+// TIMER
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timeLeft--;
+
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+
+        document.getElementById("timer").innerText =
+            `⏱ ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitQuiz();
+            alert("Time is up!");
+        }
+    }, 1000);
+}
+
+// LOAD QUESTION
+function loadQuestion() {
+    let q = questions[currentQuestion];
+
+    let html = `<div class="question">${currentQuestion + 1}. ${q.question}</div>`;
+    html += `<div class="options">`;
+
+    q.options.forEach((opt, index) => {
+        html += `
+        <label id="opt${index}">
+            <input type="radio" name="option" value="${index}">
+            ${opt}
+        </label>`;
+    });
+
+    html += `</div><p id="feedback"></p>`;
+    document.getElementById("quiz").innerHTML = html;
+}
+
+// INSTANT FEEDBACK
+document.addEventListener("change", function(e) {
+    if (e.target.name === "option") {
+
+        let selected = parseInt(e.target.value);
+        let correct = questions[currentQuestion].answer;
+
+        let labels = document.querySelectorAll(".options label");
+
+        labels.forEach((label, index) => {
+            let input = label.querySelector("input");
+            input.disabled = true;
+
+            if (index === correct) {
+                label.style.background = "#28a745";
+                label.style.color = "white";
+            }
+
+            if (index === selected && selected !== correct) {
+                label.style.background = "#dc3545";
+                label.style.color = "white";
+            }
+        });
+
+        if (selected === correct) {
+            document.getElementById("feedback").innerHTML = "✅ Correct!";
+        } else {
+            document.getElementById("feedback").innerHTML =
+                `❌ Wrong! Correct answer: ${questions[currentQuestion].options[correct]}`;
+        }
+
+        userAnswers[currentQuestion] = selected;
+    }
+});
+
+// NAVIGATION
+function nextQuestion() {
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+    }
+}
+
+// SUBMIT
+function submitQuiz() {
+    clearInterval(timerInterval);
+
+    let score = 0;
+    questions.forEach((q, index) => {
+        if (userAnswers[index] === q.answer) score++;
+    });
+
+    document.getElementById("result").innerText =
+        `🎯 Final Score: ${score} / ${questions.length}`;
+}
+
+</script>
+
+</body>
+</html>
